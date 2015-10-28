@@ -34,25 +34,28 @@ class MainHandler(tornado.web.RequestHandler):
 
 class FileDownloadHandler(tornado.web.RequestHandler):
     def get(self, file_name):
-            down_path = os.path.join(os.path.dirname(__file__), 'files')
-            file_path = os.path.join(down_path, file_name)
-            if file_name and os.path.exists(file_path):
-                self.set_header ('Content-Type', 'application/octet-stream')
-                self.set_header ('Content-Disposition', 'attachment; filename=%s' % file_name)
-                with open(file_path, 'rb') as f:
-                    try:
-                        while True:
-                            _buffer = f.read(1024 * 4)
-                            if _buffer:
-                                self.write(__buffer)
-                            else:
-                                f.close()
-                                self.finish()
-                                return
-                    except:
-                        raise tornado.web.HTTPError(500)
-            else:
-                raise tornado.web.HTTPError(404)
+        '''
+        downloads the file by file_name
+        '''
+        down_path = os.path.join(os.path.dirname(__file__), 'files')
+        file_path = os.path.join(down_path, file_name)
+        if file_name and os.path.exists(file_path):
+            self.set_header ('Content-Type', 'application/octet-stream')
+            self.set_header ('Content-Disposition', 'attachment; filename=%s' % file_name)
+            with open(file_path, 'rb') as f:
+                try:
+                    while True:
+                        _buffer = f.read(1024 * 4)
+                        if _buffer:
+                            self.write(_buffer)
+                        else:
+                            f.close()
+                            self.finish()
+                            return
+                except:
+                    raise tornado.web.HTTPError(500)
+        else:
+            raise tornado.web.HTTPError(404)
 
 
 class FileHandler(tornado.web.RequestHandler):
@@ -96,7 +99,7 @@ settings = {
 application = tornado.web.Application([
     (r"/", MainHandler),
     (r"/file/upload", FileHandler),
-    (r"/file/download/(.*)", FileDownloadHandler),
+    (r"/file/(.*)", FileDownloadHandler),
     ], **settings)
 
 
