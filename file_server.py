@@ -24,7 +24,6 @@ class MainHandler(tornado.web.RequestHandler):
             <body>
             <form action='file/upload' enctype="multipart/form-data" method='post'>
             <input type='file' name='file'/><br/>
-            <input type='text' name='type'/><br/>
             <input type='submit' value='submit'/>
             </form>
             </body>
@@ -70,17 +69,17 @@ class FileHandler(tornado.web.RequestHandler):
         for meta in file_metas:
             file_name = meta['filename']
             body = meta['body']
-            data = filename.encode('utf-8') + body
+            data = file_name.encode('utf-8') + body
             data_md5 = hashlib.md5(data).hexdigest()
             file_saved_path = os.path.join(upload_path, data_md5)
 
             with open(file_saved_path, 'wb') as up:
                 up.write(body)
             
-            file_extension = imghdr.what(file_path)
-            os.rename(file_saved_path, file_saved_path + file_extension)
+            file_extension = imghdr.what(file_saved_path)
+            os.rename(file_saved_path, file_saved_path + '.' + file_extension)
 
-            conf[filename] = data_md5 + file_type + file_extension
+            conf[file_name] = data_md5 + '.' + file_extension
 
         self.write(conf)
 
